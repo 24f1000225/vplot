@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4 text-center"><i class="fas fa-car me-2"></i>Available Parking Lots</h2>
+  <div class="table-responsive glass-card rounded-3 p-3 mb-5">
+    <table class="table table-borderless text-white">
+      <thead>
+        <tr class="border-bottom">
+          <th><i class="fas fa-map-marker-alt me-2"></i>Location</th>
+          <th><i class="fas fa-parking me-2"></i>Available Spots</th>
+          <th><i class="fas fa-tag me-2"></i>Price/hour (Rs)</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lot in lots %}
+        <tr class="border-bottom">
+          <td>{{ lot.location }}</td>
+          <td>{{ lot.available_spots() }} / {{ lot.max_spots }}</td>
+          <td>{{ lot.price }}</td>
+          <td>
+            {% if lot.available_spots() > 0 %}
+              <form method="POST" action="{{ url_for('views.book_spot', lot_id=lot.id) }}">
+                <button type="submit" class="btn btn-success btn-sm rounded-pill">
+                  <i class="fas fa-bookmark me-1"></i>Book Spot
+                </button>
+              </form>
+            {% else %}
+              <span class="badge bg-danger rounded-pill px-3 py-2">
+                <i class="fas fa-times me-1"></i>Full
+              </span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="my-5 border-white opacity-25">
+
+  <h2 class="mb-4 text-center"><i class="fas fa-clock me-2"></i>My Active Bookings</h2>
+  {% set active_bookings = bookings | selectattr("is_active") | list %}
+  {% if active_bookings %}
+  <div class="table-responsive glass-card rounded-3 p-3 mb-5">
+    <table class="table table-borderless text-white">
+      <thead>
+        <tr class="border-bottom">
+          <th><i class="fas fa-map-marker-alt me-2"></i>Location</th>
+          <th><i class="fas fa-parking me-2"></i>Spot Number</th>
+          <th><i class="fas fa-clock me-2"></i>Start Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for booking in active_bookings %}
+        <tr class="border-bottom">
+          <td>{{ booking.spot.lot.location }}</td>
+          <td>{{ booking.spot.spot_number }}</td>
+          <td>{{ booking.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>
+            <a href="{{ url_for('views.release_booking', booking_id=booking.id) }}"
+               class="btn btn-danger btn-sm rounded-pill">
+              <i class="fas fa-unlock me-1"></i>Release
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="glass-card rounded-3 p-4 text-center mb-5">
+      <i class="fas fa-info-circle fa-2x mb-3" style="color: var(--accent);"></i>
+      <p class="mb-0">No active bookings found.</p>
+    </div>
+  {% endif %}
+
+  <hr class="my-5 border-white opacity-25">
+
+  <h2 class="mb-4 text-center"><i class="fas fa-history me-2"></i>Booking History</h2>
+  {% set past_bookings = bookings | rejectattr("is_active") | list %}
+  {% if past_bookings %}
+  <div class="table-responsive glass-card rounded-3 p-3">
+    <table class="table table-borderless text-white">
+      <thead>
+        <tr class="border-bottom">
+          <th><i class="fas fa-map-marker-alt me-2"></i>Location</th>
+          <th><i class="fas fa-parking me-2"></i>Spot Number</th>
+          <th><i class="fas fa-play me-2"></i>Start Time</th>
+          <th><i class="fas fa-stop me-2"></i>End Time</th>
+          <th><i class="fas fa-rupee-sign me-2"></i>Total Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for booking in past_bookings %}
+        <tr class="border-bottom">
+          <td>{{ booking.spot.lot.location }}</td>
+          <td>{{ booking.spot.spot_number }}</td>
+          <td>{{ booking.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ booking.end_time.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>₹ {{ booking.cost }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="glass-card rounded-3 p-4 text-center">
+      <i class="fas fa-info-circle fa-2x mb-3" style="color: var(--accent);"></i>
+      <p class="mb-0">No booking history found.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

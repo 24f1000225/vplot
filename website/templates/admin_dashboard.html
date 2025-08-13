@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Admin Dashboard</h2>
+  <hr>
+
+  <!-- Parking Lot Stats - Fixed Chart Section -->
+  <div class="card glass-card shadow-sm p-4 mb-4">
+    <h4 class="text-center mb-3"><i class="fas fa-chart-bar me-2"></i>Parking Lot Stats</h4>
+    <div class="chart-container" style="position: relative; height:300px; width:100%">
+      <canvas id="bookingChart"></canvas>
+    </div>
+  </div>
+
+  <div class="text-end mb-3">
+    <a href="/add_lot" class="btn btn-primary rounded-pill px-4">
+      <i class="fas fa-plus me-2"></i>Add Lot
+    </a>
+  </div>
+
+  <!-- Parking Lots -->
+  <div class="row">
+    {% for lot in lots %}
+    <div class="col-md-6 mb-4">
+      <div class="card glass-card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="fas fa-parking me-2"></i>{{ lot.location }}</h5>
+          <p class="card-text">
+            <strong><i class="fas fa-map-marker-alt me-2"></i>Address:</strong> {{ lot.address }}<br>
+            <strong><i class="fas fa-map-pin me-2"></i>Pincode:</strong> {{ lot.pincode }}<br>
+            <strong><i class="fas fa-tag me-2"></i>Price/hour:</strong> ₹ {{ lot.price }}<br>
+            <strong><i class="fas fa-car me-2"></i>Total Spots:</strong> {{ lot.max_spots }}<br>
+            <strong><i class="fas fa-check-circle me-2"></i>Available:</strong>
+            {{ lot.spot | selectattr('status', 'equalto', 'A') | list | length }} / {{ lot.max_spots }}
+          </p>
+          <div class="d-flex justify-content-between">
+            <a href="/edit_lot/{{ lot.id }}" class="btn btn-warning btn-sm rounded-pill"><i class="fas fa-edit me-1"></i>Edit</a>
+            <form method="POST" action="/delete_lot/{{ lot.id }}" onsubmit="return confirm('Are you sure?')">
+              <button type="submit" class="btn btn-danger btn-sm rounded-pill"><i class="fas fa-trash me-1"></i>Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const stats = {{ stats | tojson }};
+    if (stats && stats.length > 0) {
+      const ctx = document.getElementById('bookingChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: stats.map(s => s.location),
+          datasets: [{
+            label: 'Occupied',
+            data: stats.map(s => s.occupied || 0),
+            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1,
+            borderRadius: 4
+          }, {
+            label: 'Available',
+            data: stats.map(s => s.available || 0),
+            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#fff',
+                font: {
+                  size: 14
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: false,
+                color: 'rgba(255,255,255,0.1)'
+              },
+              ticks: {
+                color: '#fff'
+              }
+            },
+            y: {
+              grid: {
+                color: 'rgba(255,255,255,0.1)'
+              },
+              ticks: {
+                color: '#fff',
+                beginAtZero: true,
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    } else {
+      document.querySelector('.chart-container').innerHTML = 
+        '<p class="text-center text-white">No parking lot data available</p>';
+    }
+  });
+  </script>
+</div>
+{% endblock %}

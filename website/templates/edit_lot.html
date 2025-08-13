@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Edit Parking Lot{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card text-white shadow-sm rounded glass-card">
+        <div class="card-body p-4">
+          <h3 class="card-title mb-4 text-center">
+            <i class="fas fa-edit me-2"></i>Edit Parking Lot
+          </h3>
+          <form method="POST">
+            <div class="mb-3">
+              <label for="location" class="form-label">
+                <i class="fas fa-map-marker-alt me-2"></i>Lot Location
+              </label>
+              <input type="text" class="form-control bg-transparent text-white border-white"
+                     id="location" name="location" value="{{ lot.location }}" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="address" class="form-label">
+                <i class="fas fa-address-card me-2"></i>Address
+              </label>
+              <input type="text" class="form-control bg-transparent text-white border-white"
+                     id="address" name="address" value="{{ lot.address }}" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="pincode" class="form-label">
+                <i class="fas fa-map-pin me-2"></i>Pincode
+              </label>
+              <input type="text" class="form-control bg-transparent text-white border-white"
+                     id="pincode" name="pincode" value="{{ lot.pincode }}" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="price" class="form-label">
+                <i class="fas fa-tag me-2"></i>Price per Hour (₹)
+              </label>
+              <input type="number" step="0.01" class="form-control bg-transparent text-white border-white"
+                     id="price" name="price" value="{{ lot.price }}" required>
+            </div>
+
+            <div class="mb-4">
+              <label for="max_spots" class="form-label">
+                <i class="fas fa-car me-2"></i>Maximum Spots
+              </label>
+              <input type="number" class="form-control bg-transparent text-white border-white"
+                     id="max_spots" name="max_spots" value="{{ lot.max_spots }}" required>
+            </div>
+
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 me-2">
+                <i class="fas fa-save me-2"></i>Update Lot
+              </button>
+              <a href="{{ url_for('views.admin_dashboard') }}" class="btn btn-outline-light rounded-pill px-4 py-2">
+                <i class="fas fa-times me-2"></i>Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
